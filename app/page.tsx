@@ -13,7 +13,8 @@ export default function Home() {
       end: new Date('2024-06-02'),
       summary: 'Initial project meeting with all stakeholders',
       owner: 'Alice',
-      dependencies: []
+      dependencies: [],
+      progress: 100
     },
     {
       id: '2',
@@ -22,7 +23,8 @@ export default function Home() {
       end: new Date('2024-06-07'),
       summary: 'Collect detailed requirements from the client',
       owner: 'Bob',
-      dependencies: ['1']
+      dependencies: ['1'],
+      progress: 75
     },
     {
       id: '3',
@@ -31,7 +33,8 @@ export default function Home() {
       end: new Date('2024-06-14'),
       summary: 'Create design documents and mockups',
       owner: 'Charlie',
-      dependencies: ['2']
+      dependencies: ['2'],
+      progress: 50
     },
     {
       id: '4',
@@ -40,7 +43,8 @@ export default function Home() {
       end: new Date('2024-07-15'),
       summary: 'Develop the core features of the project',
       owner: 'Dave',
-      dependencies: ['3']
+      dependencies: ['3'],
+      progress: 25
     },
     {
       id: '5',
@@ -49,7 +53,8 @@ export default function Home() {
       end: new Date('2024-07-30'),
       summary: 'Test the developed features for any bugs',
       owner: 'Eve',
-      dependencies: ['4']
+      dependencies: ['4'],
+      progress: 0
     },
     {
       id: '6',
@@ -58,7 +63,8 @@ export default function Home() {
       end: new Date('2024-08-05'),
       summary: 'Present the project to the client for feedback',
       owner: 'Frank',
-      dependencies: ['5']
+      dependencies: ['5'],
+      progress: 0
     },
     {
       id: '7',
@@ -67,7 +73,8 @@ export default function Home() {
       end: new Date('2024-08-10'),
       summary: 'Make final adjustments based on client feedback',
       owner: 'Grace',
-      dependencies: ['6']
+      dependencies: ['6'],
+      progress: 0
     },
     {
       id: '8',
@@ -76,7 +83,8 @@ export default function Home() {
       end: new Date('2024-08-15'),
       summary: 'Official launch of the project',
       owner: 'Hannah',
-      dependencies: ['7']
+      dependencies: ['7'],
+      progress: 0
     }
   ];
 

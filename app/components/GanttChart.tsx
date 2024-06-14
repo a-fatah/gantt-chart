@@ -139,18 +139,28 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, setTasks }) => {
     taskRects.call(drag);
 
     // Draw dependency lines
+    const lineGenerator = d3.line()
+      .x(d => d[0])
+      .y(d => d[1])
+      .curve(d3.curveBundle.beta(1));
+
     tasks.forEach(task => {
       if (task.dependencies) {
         task.dependencies.forEach(depId => {
           const depTask = tasks.find(t => t.id === depId);
           if (depTask) {
-            svg.append('line')
-              .attr('x1', xScale(depTask.end))
-              .attr('y1', yScale(depTask.name)! + yScale.bandwidth() / 2)
-              .attr('x2', xScale(task.start))
-              .attr('y2', yScale(task.name)! + yScale.bandwidth() / 2)
+            const points = [
+              [xScale(depTask.end), yScale(depTask.name)! + yScale.bandwidth() / 2],
+              [(xScale(depTask.end)! + xScale(task.start)!) / 2, yScale(depTask.name)! + yScale.bandwidth() / 2],
+              [(xScale(depTask.end)! + xScale(task.start)!) / 2, yScale(task.name)! + yScale.bandwidth() / 2],
+              [xScale(task.start), yScale(task.name)! + yScale.bandwidth() / 2]
+            ];
+
+            svg.append('path')
+              .attr('d', lineGenerator(points))
               .attr('stroke', 'black')
               .attr('stroke-width', 2)
+              .attr('fill', 'none')
               .attr('marker-end', 'url(#arrow)');
           }
         });
