@@ -1,8 +1,8 @@
 // src/components/GanttChart.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { Task } from '@/types';
 import Tooltip from './tooltip';
+import { Task } from './types';
 
 interface GanttChartProps {
   tasks: Task[];
@@ -137,6 +137,38 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, setTasks }) => {
       });
 
     taskRects.call(drag);
+
+    // Draw dependency lines
+    tasks.forEach(task => {
+      if (task.dependencies) {
+        task.dependencies.forEach(depId => {
+          const depTask = tasks.find(t => t.id === depId);
+          if (depTask) {
+            svg.append('line')
+              .attr('x1', xScale(depTask.end))
+              .attr('y1', yScale(depTask.name)! + yScale.bandwidth() / 2)
+              .attr('x2', xScale(task.start))
+              .attr('y2', yScale(task.name)! + yScale.bandwidth() / 2)
+              .attr('stroke', 'black')
+              .attr('stroke-width', 2)
+              .attr('marker-end', 'url(#arrow)');
+          }
+        });
+      }
+    });
+
+    // Define arrow marker
+    svg.append('defs').append('marker')
+      .attr('id', 'arrow')
+      .attr('viewBox', '0 0 10 10')
+      .attr('refX', 5)
+      .attr('refY', 5)
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6)
+      .attr('orient', 'auto-start-reverse')
+      .append('path')
+      .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+      .attr('fill', 'black');
 
   }, [tasks, setTasks]);
 

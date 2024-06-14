@@ -1,9 +1,10 @@
 // src/types.ts
 export interface Task {
-  id: number;
+  id: string;
   name: string;
   start: Date;
   end: Date;
   owner: string;
   summary: string;
+  dependencies?: string[];
 }
