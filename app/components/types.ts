@@ -7,4 +7,5 @@ export interface Task {
   owner: string;
   summary: string;
   dependencies?: string[];
+  progress: number;
 }
