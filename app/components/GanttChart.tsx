@@ -71,6 +71,18 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, setTasks }) => {
         });
       })
       .on('mousemove', (event, task) => {
+        const rect = d3.select(event.target);
+        const xStart = +rect.attr('x');
+        const width = +rect.attr('width');
+        const xEnd = xStart + width;
+        const cursorPosition = event.offsetX;
+
+        if (Math.abs(cursorPosition - xStart) < 5 || Math.abs(cursorPosition - xEnd) < 5) {
+          rect.style('cursor', 'ew-resize');
+        } else {
+          rect.style('cursor', 'default');
+        }
+
         setTooltip({
           x: event.pageX,
           y: event.pageY,
@@ -79,6 +91,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks, setTasks }) => {
         });
       })
       .on('mouseout', () => {
+        d3.select(event.target).style('cursor', 'default');
         setTooltip({
           x: 0,
           y: 0,
