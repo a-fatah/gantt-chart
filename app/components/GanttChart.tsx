@@ -6,16 +6,12 @@ import Tooltip from './tooltip';
 
 interface GanttChartProps {
   tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
-const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
+const GanttChart: React.FC<GanttChartProps> = ({ tasks, setTasks }) => {
   const ref = useRef<SVGSVGElement | null>(null);
-  const [tooltip, setTooltip] = useState<{
-    x: number;
-    y: number;
-    content: string;
-    visible: boolean;
-  }>({
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string; visible: boolean }>({
     x: 0,
     y: 0,
     content: '',
@@ -35,14 +31,14 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
     const xScale = d3
       .scaleTime()
       .domain([
-        d3.min(tasks, (task) => task.start) as Date,
-        d3.max(tasks, (task) => task.end) as Date,
+        d3.min(tasks, task => task.start) as Date,
+        d3.max(tasks, task => task.end) as Date,
       ])
       .range([margin.left, width - margin.right]);
 
     const yScale = d3
       .scaleBand()
-      .domain(tasks.map((task) => task.name))
+      .domain(tasks.map(task => task.name))
       .range([margin.top, height - margin.bottom])
       .padding(0.1);
 
@@ -61,9 +57,9 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
       .data(tasks)
       .enter()
       .append('rect')
-      .attr('x', (task) => xScale(task.start)!)
-      .attr('y', (task) => yScale(task.name)!)
-      .attr('width', (task) => xScale(task.end)! - xScale(task.start)!)
+      .attr('x', task => xScale(task.start)!)
+      .attr('y', task => yScale(task.name)!)
+      .attr('width', task => xScale(task.end)! - xScale(task.start)!)
       .attr('height', yScale.bandwidth())
       .attr('fill', 'steelblue')
       .on('mouseover', (event, task) => {
@@ -90,17 +86,51 @@ const GanttChart: React.FC<GanttChartProps> = ({ tasks }) => {
           visible: false,
         });
       });
-  }, [tasks]);
+
+    // Add drag behavior for resizing
+    const drag = d3.drag()
+      .on('start', function (event, task) {
+        d3.select(this).raise().attr('stroke', 'black');
+      })
+      .on('drag', function (event, task) {
+        const x = event.x;
+        const rect = d3.select(this);
+        const width = +rect.attr('width');
+        const xStart = +rect.attr('x');
+
+        // Determine if dragging start or end based on cursor position
+        const isDraggingStart = x < xStart + width / 2;
+        if (isDraggingStart) {
+          const newStartDate = xScale.invert(x);
+          if (newStartDate < task.end) {
+            rect.attr('x', x);
+            rect.attr('width', xScale(task.end)! - x);
+            setTasks(prevTasks =>
+              prevTasks.map(t => (t.id === task.id ? { ...t, start: newStartDate } : t))
+            );
+          }
+        } else {
+          const newEndDate = xScale.invert(x);
+          if (newEndDate > task.start) {
+            rect.attr('width', x - xStart);
+            setTasks(prevTasks =>
+              prevTasks.map(t => (t.id === task.id ? { ...t, end: newEndDate } : t))
+            );
+          }
+        }
+      })
+      .on('end', function () {
+        d3.select(this).attr('stroke', null);
+      });
+
+    taskRects.call(drag);
+
+  }, [tasks, setTasks]);
 
   return (
     <>
       <svg ref={ref} width={800} height={400}></svg>
-      <Tooltip
-        x={tooltip.x}
-        y={tooltip.y}
-        content={tooltip.content}
-        visible={tooltip.visible}
-      />
+      <Tooltip x={tooltip.x} y={tooltip.y} content={tooltip.content} visible={tooltip.visible} />
     </>
   );
 };
